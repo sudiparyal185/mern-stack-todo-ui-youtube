@@ -15,12 +15,15 @@ import { useNavigate } from "react-router-dom";
 import { register, reset } from "../../features/Authentication/userSlice";
 
 const Register = () => {
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [registerData, setRegisterData] = useState({
     name: "",
     email: "",
     password: "",
     confirmedPassword: "",
   });
+  const { name, email, password, confirmedPassword } = registerData;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, isError, isSuccess, message } = useSelector(
@@ -28,9 +31,14 @@ const Register = () => {
   );
 
   useEffect(() => {
+    if (isError) {
+      setOpenSnackbar(true);
+      setToastMessage(message);
+    }
     if (isSuccess || user) {
       navigate("/");
     }
+    dispatch(reset());
   }, [user, isError, isSuccess, message, navigate, dispatch]);
   const handleChange = (e) => {
     setRegisterData((prevState) => ({
@@ -51,8 +59,17 @@ const Register = () => {
       dispatch(register(userData));
     }
   };
+  const handleClose = () => {
+    setOpenSnackbar(false);
+  };
+  const action = (
+    <>
+      <IconButton onClick={handleClose}>
+        <CloseIcon fontSize='small' />
+      </IconButton>
+    </>
+  );
 
-  const { name, email, password, confirmedPassword } = registerData;
   return (
     <>
       <StyledContainer>
@@ -123,6 +140,17 @@ const Register = () => {
           </form>
         </StyledFormContainer>
       </StyledContainer>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        message={toastMessage}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        action={action}
+      />
     </>
   );
 };

@@ -10,23 +10,57 @@ import {
 import Snackbar from "@mui/material/Snackbar";
 import CloseIcon from "@mui/icons-material/Close";
 import { Button, IconButton } from "@mui/material";
-
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { login, reset } from "../../features/Authentication/userSlice";
 const Login = () => {
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [registerData, setRegisterData] = useState({
     email: "",
     password: "",
   });
+  const { email, password } = registerData;
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, isError, isSuccess, message } = useSelector(
+    (state) => state.user
+  );
   const handleChange = (e) => {
     setRegisterData((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
     }));
   };
+  useEffect(() => {
+    if (isError) {
+      setOpenSnackbar(true);
+      setToastMessage(message);
+    }
+    if (isSuccess || user) {
+      navigate("/");
+    }
+    dispatch(reset());
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
+
   const submitData = (e) => {
     e.preventDefault();
+    const userData = {
+      email,
+      password,
+    };
+    dispatch(login(userData));
   };
-
-  const { email, password } = registerData;
+  const handleClose = () => {
+    setOpenSnackbar(false);
+  };
+  const action = (
+    <>
+      <IconButton onClick={handleClose}>
+        <CloseIcon fontSize='small' />
+      </IconButton>
+    </>
+  );
   return (
     <>
       <StyledContainer>
@@ -72,6 +106,17 @@ const Login = () => {
           </form>
         </StyledFormContainer>
       </StyledContainer>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        message={toastMessage}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        action={action}
+      />
     </>
   );
 };

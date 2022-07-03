@@ -9,14 +9,25 @@ import {
   StyledUserContainer,
   StyledButton,
 } from "./Header.styled";
+import { useDispatch, useSelector } from "react-redux";
+import { logout, reset } from "../../features/Authentication/userSlice";
 const Header = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    dispatch(reset());
+    navigate("/login");
+  };
   return (
     <StyledContainer>
       <StyledDashboardDiv>
         <Link to='/'>TODO Dashboard</Link>
       </StyledDashboardDiv>
-      {false ? (
-        <StyledButton>
+      {user ? (
+        <StyledButton onClick={handleLogout}>
           <LogoutIcon />
           <h5>Logout</h5>
         </StyledButton>
