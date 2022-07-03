@@ -10,6 +10,9 @@ import {
 import Snackbar from "@mui/material/Snackbar";
 import CloseIcon from "@mui/icons-material/Close";
 import { Button, IconButton } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { register, reset } from "../../features/Authentication/userSlice";
 
 const Register = () => {
   const [registerData, setRegisterData] = useState({
@@ -18,6 +21,17 @@ const Register = () => {
     password: "",
     confirmedPassword: "",
   });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, isError, isSuccess, message } = useSelector(
+    (state) => state.user
+  );
+
+  useEffect(() => {
+    if (isSuccess || user) {
+      navigate("/");
+    }
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
   const handleChange = (e) => {
     setRegisterData((prevState) => ({
       ...prevState,
@@ -26,6 +40,16 @@ const Register = () => {
   };
   const submitData = (e) => {
     e.preventDefault();
+    if (password !== confirmedPassword) {
+      dispatch(reset());
+    } else {
+      const userData = {
+        name,
+        email,
+        password,
+      };
+      dispatch(register(userData));
+    }
   };
 
   const { name, email, password, confirmedPassword } = registerData;
