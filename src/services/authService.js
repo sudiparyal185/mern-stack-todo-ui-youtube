@@ -1,6 +1,6 @@
 import axios from "axios";
+import { BASE_URL } from "../utils";
 
-const BASE_URL = "http://localhost:3005";
 
 const register = async (userData) => {
   const response = await axios.post(
