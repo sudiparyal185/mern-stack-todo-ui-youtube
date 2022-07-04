@@ -8,19 +8,28 @@ import {
   StyledInputContainer,
 } from "../Register/Register.styled";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import { getTodos, reset, addTodos } from "../../features/todo/todoSlice";
+import {
+  getTodos,
+  reset,
+  addTodos,
+  updateTodo,
+} from "../../features/todo/todoSlice";
 import Todo from "../Todo/Todo";
 const Dashboard = () => {
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [todoText, setTodoText] = useState("");
+  const [updateTodoId, setUpdateTodoId] = useState("");
   const { todo } = useSelector((state) => state.todo);
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
     dispatch(getTodos());
+    return () => {
+      dispatch(reset());
+    };
   }, [user, navigate, dispatch]);
 
   const handleTodochange = (e) => {
@@ -30,8 +39,18 @@ const Dashboard = () => {
   //Adding the todos
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(addTodos(todoText));
-    setTodoText("");
+    if (updateTodoId !== "" && todoText) {
+      const updateData = {
+        updateTodoId,
+        todoText,
+      };
+      dispatch(updateTodo(updateData));
+      setTodoText("");
+      setUpdateTodoId("");
+    } else {
+      dispatch(addTodos(todoText));
+      setTodoText("");
+    }
   };
   return (
     <>
@@ -57,7 +76,12 @@ const Dashboard = () => {
             </StyledInputContainer>
           </form>
           {todo?.map((item) => (
-            <Todo key={item?._id} todo={item} />
+            <Todo
+              key={item?._id}
+              todo={item}
+              setTodoText={setTodoText}
+              setUpdateTodoId={setUpdateTodoId}
+            />
           ))}
         </StyledFormContainer>
       </StyledContainer>
